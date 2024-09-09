@@ -16,6 +16,7 @@ list_of_files=[
     f"src/{project_name}/utils/__init__.py", # General Struture can be defined here
     f"src/{project_name}/utils/common.py",
     f"src/{project_name}/logging/__init__.py",
+    f"src/{project_name}/Exception/__init__.py",
     f"src/{project_name}/config/__init__.py",
     f"src/{project_name}/config/configuration.py", # Contain All the configuration
     f"src/{project_name}/pipeline/__init__.py", # Pipeline Folder
