@@ -14,3 +14,4 @@ logging.basicConfig(
     level=logging.INFO,       # with the help of info I am going to rint the specific message
 )
 
+logger = logging.getLogger("TextSummarizerLogger")

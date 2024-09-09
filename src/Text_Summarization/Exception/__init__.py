@@ -1,5 +1,5 @@
 import sys # Any exception that is getting controled, this library will have that information
-from Text_Summarization.logging import logging
+from Text_Summarization.logging import logger
 
 # where ever an exception get raised 
 def error_message_detail(error,error_detail:sys):  # error , along with error message stored in sys
