@@ -35,3 +35,22 @@ except Exception as e:
     raise e
 
 # After executing , artifacts\data_validation\status.txt
+
+
+
+# Call the pipeline  (src\Text_Summarization\pipeline\stage_03_data_transformation.py) in main .py 
+
+from Text_Summarization.pipeline.stage_03_data_transformation import DataTransformationTrainingPipeline
+
+STAGE_NAME="Data Transformation Stage"
+try:
+    logger.info(f"Stage {STAGE_NAME} Started")
+    obj=DataTransformationTrainingPipeline()  # Calling the class
+    obj.main()                           # Calling the main method,Start the data ingestion part
+    logger.info(f" Stage {STAGE_NAME} Completed")
+
+except Exception as e:
+    logger.exception(e)
+    raise e
+
+# After executing , artifacts\data_transformation
