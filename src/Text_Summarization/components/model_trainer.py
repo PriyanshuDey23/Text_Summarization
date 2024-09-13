@@ -5,42 +5,60 @@ from datasets import load_dataset, load_from_disk
 import torch
 import os
 from Text_Summarization.config.configuration import ModelTrainerConfig
+from transformers import Trainer, TrainingArguments, PegasusForConditionalGeneration, PegasusTokenizer
+import torch
+
 
 class ModelTrainer:
     def __init__(self, config: ModelTrainerConfig):
         self.config = config
-    
 
+
+    
     def train(self):
+        # model_pegasus = PegasusForConditionalGeneration.from_pretrained(self.config.model_ckpt)
+        # tokenizer = PegasusTokenizer.from_pretrained(self.config.model_ckpt)
         device = "cuda" if torch.cuda.is_available() else "cpu"
-        tokenizer = AutoTokenizer.from_pretrained(self.config.model_ckpt)
-        model_pegasus = AutoModelForSeq2SeqLM.from_pretrained(self.config.model_ckpt).to(device)
-        seq2seq_data_collator = DataCollatorForSeq2Seq(tokenizer, model=model_pegasus) # For batches
+        model_ckpt = "google/pegasus-cnn_dailymail"
+        tokenizer = AutoTokenizer.from_pretrained(model_ckpt)
+        seq2seq_data_collator = DataCollatorForSeq2Seq(tokenizer, model=model_ckpt)
+        model_pegasus = AutoModelForSeq2SeqLM.from_pretrained(model_ckpt).to(device)
+        model=model_pegasus
+
         
         #loading data 
         dataset_samsum_pt = load_from_disk(self.config.data_path)
 
+        # trainer_args = TrainingArguments(
+        #     output_dir=str(self.config.root_dir),
+        #     num_train_epochs=self.config.num_train_epochs,
+        #     warmup_steps=self.config.warmup_steps,
+        #     per_device_train_batch_size=self.config.per_device_train_batch_size,
+        #     per_device_eval_batch_size=self.config.per_device_train_batch_size,
+        #     weight_decay=self.config.weight_decay,
+        #     logging_steps=self.config.logging_steps,
+        #     evaluation_strategy=self.config.evaluation_strategy,
+        #     eval_steps=self.config.eval_steps,
+        #     save_steps=int(self.config.save_steps),
+        #     gradient_accumulation_steps=self.config.gradient_accumulation_steps
+        # )
+
         trainer_args = TrainingArguments(
-            output_dir=self.config.root_dir, num_train_epochs=self.config.num_train_epochs, warmup_steps=self.config.warmup_steps,
-            per_device_train_batch_size=self.config.per_device_train_batch_size, per_device_eval_batch_size=self.config.per_device_train_batch_size,
-            weight_decay=self.config.weight_decay, logging_steps=self.config.logging_steps,
-            evaluation_strategy=self.config.evaluation_strategy, eval_steps=self.config.eval_steps, save_steps=1e6,
-            gradient_accumulation_steps=self.config.gradient_accumulation_steps
+        output_dir='pegasus/cnn-daily', num_train_epochs=20, warmup_steps=500,
+        per_device_train_batch_size=1, per_device_eval_batch_size=1,
+        weight_decay=0.01, logging_steps=10,
+        evaluation_strategy='steps', eval_steps=500, save_steps=1e6,
+        gradient_accumulation_steps=16
         ) 
 
-
-        # trainer_args = TrainingArguments(
-        #     output_dir=self.config.root_dir, num_train_epochs=1, warmup_steps=500,
-        #     per_device_train_batch_size=1, per_device_eval_batch_size=1,
-        #     weight_decay=0.01, logging_steps=10,
-        #     evaluation_strategy='steps', eval_steps=500, save_steps=1e6,
-        #     gradient_accumulation_steps=16
-        # ) 
-
-        trainer = Trainer(model=model_pegasus, args=trainer_args,
-                  tokenizer=tokenizer, data_collator=seq2seq_data_collator,
-                  train_dataset=dataset_samsum_pt["train"], 
-                  eval_dataset=dataset_samsum_pt["validation"])
+        trainer = Trainer(
+            model=model_pegasus,
+            args=trainer_args,
+            tokenizer=tokenizer,
+            data_collator=None,  # Define if necessary
+            train_dataset=dataset_samsum_pt["test"],
+            eval_dataset=dataset_samsum_pt["validation"]
+        )
         
         trainer.train()
 
