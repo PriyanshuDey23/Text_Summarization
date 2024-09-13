@@ -74,3 +74,22 @@ except Exception as e:
     raise e
 
 # After executing , artifacts/model_trainer
+
+
+# Call the pipeline  (src\Text_Summarization\pipeline\stage_05_model_evaluation.py) in main .py 
+
+from Text_Summarization.pipeline.stage_05_model_evaluation import ModelEvaluationTrainingPipeline
+
+STAGE_NAME="Model Evaluation Stage"
+try:
+    logger.info(f"Stage {STAGE_NAME} Started")
+    obj=ModelEvaluationTrainingPipeline()  # Calling the class
+    obj.main()                           # Calling the main method,
+    logger.info(f" Stage {STAGE_NAME} Completed")
+
+except Exception as e:
+    logger.exception(e)
+    raise e
+
+# After executing , artifacts/model_evaluation/
+
